@@ -17,6 +17,8 @@ const show = () => {
                        <td><img src="${item.image}"></td>
                        <td>${item.price}</td>
                        <td>
+                          <a href="update-product.html?id=${item.id}"> <button> Update</button> </a>
+
                           <button class="btn-delete" data-id="${
                             item.id
                           }">Delete</button>
@@ -26,7 +28,8 @@ const show = () => {
         })
         .join(" ");
         // đoạn này nó dùng app.innerHTML để return 1 cái string về nối chuỗi để hiện thị, nhớ chú ý dấu `` lmao
-        //tạo thêm một class cho phần delete button và  data-id"${item.id} để xác định id sản phẩm            
+        //tạo thêm một class cho phần delete button và  data-id"${item.id} để xác định id sản phẩm  
+        //"update-product.html?id=${item.id}" lấy id để đưa dữ liệu qua đường dẫn          
       })
       .then(() => {
         //tìm tất cả các phần tử có class btn-delete và cho vào mảng BtnDelete

@@ -84,6 +84,8 @@ const show = () => {
                        <td><img src="${item.image}"></td>
                        <td>${item.price}</td>
                        <td>
+                           <a href="update-product.html?id=${item.id}"> <button> Update</button> </a>
+                          
                           <button class="btn-delete" data-id="${
                             item.id
                           }">Delete</button>
@@ -93,7 +95,8 @@ const show = () => {
         })
         .join(" ");
         // đoạn này nó dùng app.innerHTML để return 1 cái string về nối chuỗi để hiện thị, nhớ chú ý dấu `` lmao
-        //tạo thêm một class cho phần delete button và  data-id"${item.id} để xác định id sản phẩm            
+        //tạo thêm một class cho phần delete button và  data-id"${item.id} để xác định id sản phẩm   
+        //"update-product.html?id=${item.id}" lấy id để đưa dữ liệu qua đường dẫn           
       })
       .then(() => {
         //tìm tất cả các phần tử có class btn-delete và cho vào mảng BtnDelete
@@ -170,10 +173,74 @@ addForm.addEventListener("submit", () => {
                   "Content-Type": "application/json",
         },
         body: JSON.stringify(newProduct),
-     });
+      }).then(() => (window.location = "./index.html"));
+     //điều hướng về trang chủ
 });
 
 
+//b8 tạo file update-produtc.html
+//
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Update Product Page</h1>
+    <form action="" id="form-update">
+        <input type="text" placeholder="Enter Product Name" id="prd-name">
+        <input type="text" placeholder="Enter Product Price" id="prd-price">
+        <input type="text" placeholder="Enter Product Image" id="prd-image">
+
+        <button type="submit">Update Product</button>
+    </form>
+    <script src="update-product.js" type="">></script>
+</body>
+</html>
+
+
+//b9 tạo file update-product.js
+//
+//tạo biến lấy id 
+const searchParam = new URLSearchParams(document.location.search);
+const id = searchParam.get("id");
+
+//tìm đế tất cả input để đổ dữ liệu
+const prdName = document.querySelector("#prd-name");
+const prdPrice = document.querySelector("#prd-price");
+const prdImage = document.querySelector("#prd-image");
+const updateForm = document.querySelector("#form-update");
+
+//call api để đổ dữ liệu
+fetch("http://localhost:3000/products/" + id)
+.then(response => response.json())
+.then((data) => {
+    //đổ dữ liệu
+    prdName.value = data.name;
+    prdPrice.value = data.price;
+    prdImage.value = data.image;
+});
+
+updateForm.addEventListener("submit", () => {
+    //tạo object update
+    let updateData = {
+        name: prdName.value,
+        price: prdPrice.value,
+        image: prdImage.value,
+    };
+   //call api cập nhật
+   fetch("http://localhost:3000/products/" + id, {
+    method:"PUT",
+    headers:{
+        "Content-Type":"application/json",
+    },
+    body:JSON.stringify(updateData)
+   }).then(() => (window.location = "./index.html"));
+});
+
+//lưu ý dùng boostrap để làm phẩn validation
 
 
 

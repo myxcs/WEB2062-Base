@@ -21,6 +21,7 @@ addForm.addEventListener("submit", () => {
                   "Content-Type": "application/json",
         },
         body: JSON.stringify(newProduct),
-     });
+     }).then(() => (window.location = "./index.html"));
+     //điều hướng về trang chủ
 });
 
