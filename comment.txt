@@ -1,0 +1,179 @@
+//b1
+//chạy câu lệnh để setup server
+
+npm install -g json-server
+
+//chạy lần lượt
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+
+json-server --watch db.json
+
+//b2 tạo thêm file database db.json và index.html
+
+//b3 setup dữ liệu cho db.json với định dạng
+//
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "iPhone",
+            "image": "https://cdn2.cellphones.com.vn/358x358,webp,q100/media/catalog/product/t/_/t_m_18.png",
+            "price":300
+        }
+    ]
+}
+
+//b4 setup dữ liệu cho file index.html và tạo thêm file add-product.html
+//tạo giao diện đơn giản và liên kết các file
+
+//index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+    <a href="./add-product.html"><button>Add New Product</button></a>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Product Name</th>
+                <th>Product Image</th>
+                <th>Product Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="app">
+              
+        </tbody>
+    </table>
+    <script src="./main.js" type="module"></script>
+</body>
+</html>
+
+//trong thể table, ta gọi thêm một thẻ <tbody> và đặt id để đổ dữ liệu vào bảng
+//
+   <tbody id="app">
+              
+        </tbody>
+
+//b5 trong main.js
+//
+//tìm tìm phần tử qua id
+const app = document.querySelector("#app");
+
+//hàm để hiện thị dữ liệu (call api)
+const show = () => {
+
+       //sử dựng fetch để call api, lấy api bằng cách vào terminal => json-server --watch db.json
+      fetch("http://localhost:3000/products")
+      .then((response) => response.json())
+      .then((data)=> { 
+        app.innerHTML = data
+        .map((item,index) => {
+               return `
+                   <tr>
+                       <td>${index + 1}</td>
+                       <td>${item.name}</td>
+                       <td><img src="${item.image}"></td>
+                       <td>${item.price}</td>
+                       <td>
+                          <button class="btn-delete" data-id="${
+                            item.id
+                          }">Delete</button>
+                       </td>
+                   </tr>
+                   `;
+        })
+        .join(" ");
+        // đoạn này nó dùng app.innerHTML để return 1 cái string về nối chuỗi để hiện thị, nhớ chú ý dấu `` lmao
+        //tạo thêm một class cho phần delete button và  data-id"${item.id} để xác định id sản phẩm            
+      })
+      .then(() => {
+        //tìm tất cả các phần tử có class btn-delete và cho vào mảng BtnDelete
+        const btnDelete = document.querySelectorAll(".btn-delete");
+        //thực hiện một vòng lặp để set sự kiện cho tất cả các nút
+        // dùng biến btn lưu các đoạn html <button class="btn-delete">Delete</button>
+        for(let btn of btnDelete)
+        {
+            btn.addEventListener("click", ()=>{
+                  //element.dataset.key
+                  //elemnet là phần tử cần truy cập vào attribute,
+                  //dataset dùng để truy cập vào những phần tử có tiền tố data
+                  //key xác định sau phần data
+
+                  let id = btn.dataset.id;
+                  //trỏ đến phần dữ liệu với id tương ứng và thực hiện xóa
+                  //nếu lỗi xóa hết terminal và thực hiện lại bước 1
+                  fetch("http://localhost:3000/products/" + id, {
+                    method:"DELETE",
+                  });
+            });
+        }
+      });
+       
+};
+
+show();
+
+
+//b6 tạo form add-product.html và liên kết 
+//
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Add New Product</h1>
+    <form action="" id="form-add">
+        <input type="text" placeholder="Enter Product Name" id="prd-name">
+        <input type="text" placeholder="Enter Product Price" id="prd-price">
+        <input type="text" placeholder="Enter Product Image" id="prd-image">
+
+        <button type="submit">Add New Product</button>
+    </form>
+    <script src="add-product.js"></script>
+</body>
+</html>
+
+//b7 tạo file add-product.js 
+//
+//tìm đế tất cả input để lấy dữ liệu
+const prdName = document.querySelector("#prd-name")
+const prdPrice = document.querySelector("#prd-price")
+const prdImage = document.querySelector("#prd-image")
+const addForm = document.querySelector("#form-add")
+
+//tìm đến form và bắt sự kiện submit
+addForm.addEventListener("submit", () => {
+    //tạo object để lưu dữ liệu
+    let newProduct = {
+        name: prdName.value,
+        price: prdPrice.value,
+        image: prdImage.value,
+    };
+
+     //call api và đẩy object
+     //chuyển đổi dữ liệu từ object sang json
+     fetch("http://localhost:3000/products", {
+        method:"POST",
+        headers: {
+                  "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProduct),
+     });
+});
+
+
+
+
+
